@@ -12,6 +12,7 @@ RUN \
 	apt-get -y --no-install-recommends install apache2 apache2-utils libapache2-mod-wsgi postgresql postgresql-client ldap-utils rsyslog rsyslog-pgsql openjdk-7-jre-headless git-core
 
 RUN \
+	{ printf '[user]\nname = Root of the System\nemail = root@local.docker' > /root/.gitconfig; } && \
 	apt-get -y --no-install-recommends install rudder-inventory-ldap && \
 	/etc/init.d/rudder-slapd start && \
 	/etc/init.d/postgresql start && \
@@ -30,7 +31,9 @@ RUN \
 		myname=$(printf "%02i_%s" "$c" "$srv") && \
 		printf "#!/bin/bash\nexec /etc/init.d/%s start\n" "$srv" > /etc/my_init.d/${myname}; \
 	done && \
-	chmod +x /etc/my_init.d/* 
+	mkdir /etc/service/jetty-logs && \
+	{ printf '#!/bin/bash\nJ=$( pidof java );\nLOG=$(ls -l /proc/$J/fd/ | grep /var/log/rudder/webapp/ | awk "{print \$NF; exit}a"); exec tail -F -n 0 $LOG' > /etc/service/jetty-logs/run; } &&\
+	chmod +x /etc/my_init.d/* /etc/service/*/run
 
 EXPOSE 80 443 5309
 
