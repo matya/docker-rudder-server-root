@@ -3,13 +3,18 @@ MAINTAINER Janos Mattyasovszky <mail@matya.hu>
 
 ENV \
 	DEBIAN_FRONTEND=noninteractive 
-RUN \
-	apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 474A19E8 && \
-	{ echo "deb http://www.rudder-project.org/apt-3.0/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/rudder.list; } && \
-	apt-get -y update 
 
 RUN \
-	apt-get -y --no-install-recommends install apache2 apache2-utils libapache2-mod-wsgi postgresql postgresql-client ldap-utils rsyslog rsyslog-pgsql openjdk-7-jre-headless git-core
+	apt-get update && \
+	apt-get -y --no-install-recommends install apache2 apache2-utils libapache2-mod-wsgi postgresql postgresql-client \
+		ldap-utils rsyslog rsyslog-pgsql openjdk-7-jre-headless git-core libltdl7 dmidecode rsync uuid-runtime
+
+RUN \
+	apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 474A19E8
+
+RUN \
+	{ echo "deb http://www.rudder-project.org/apt-3.0/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/rudder.list; } && \
+	apt-get -y update 
 
 RUN \
 	{ printf '[user]\nname = Root of the System\nemail = root@local.docker' > /root/.gitconfig; } && \
